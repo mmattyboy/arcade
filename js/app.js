@@ -1,3 +1,17 @@
+
+const SPEED_LIMIT = 380;
+const FIRSTLINEGRASS = 60;
+const SECONDLINEGRASS = 140;
+const THIRDLINEGRASS = 220;
+const VERTICALSPACE = 80;
+const HORIZONTALSPACE = 101;
+const ENEMYSIZE = 70;
+
+var GameObjects = function(x, y) {
+    this.x = x;
+    this.y = y;
+};
+
 // Enemies our player must avoid
 var Enemy = function(x, y, speed) {
     // Variables applied to each of our instances go here,
@@ -5,11 +19,13 @@ var Enemy = function(x, y, speed) {
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
+    GameObjects.call(this, x, y);
     this.sprite = 'images/enemy-bug.png';
-    this.x = x;
-    this.y = y;
     this.speed = speed;
 };
+
+Enemy.prototype = Object.create(GameObjects.prototype);
+Enemy.prototype.constructor = Enemy;
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
@@ -19,7 +35,6 @@ Enemy.prototype.update = function(dt) {
     // all computers.
 
     //when enemy gets off screen bring it back to the beginning of screen
-    checkCollisions(this);
     this.x = this.x + (this.speed * dt);
     if (this.x >= 500) {
         this.x = -100;
@@ -27,27 +42,27 @@ Enemy.prototype.update = function(dt) {
         //randomly set the y position of enemy, horizontal line (y-axis) is about 80px
         // set a speed limit
         if (ranNum <= 0.33) {
-            this.y = 60;
+            this.y = FIRSTLINEGRASS;
             this.speed *= 2;
-            if (this.speed > 380) {
+            if (this.speed > SPEED_LIMIT) {
                 this.speed /= 3;
             }
         }
         else if (ranNum <= 0.66 && ranNum > 0.33) {
-            this.y = 140;
+            this.y = SECONDLINEGRASS;
             this.speed *= 2.5;
-            if (this.speed > 380) {
+            if (this.speed > SPEED_LIMIT) {
                 this.speed /= 3;
             }
         }
         else if (ranNum > 0.66) {
-            this.y = 220;
+            this.y = THIRDLINEGRASS;
             this.speed *= 3;
-            if (this.speed > 380) {
+            if (this.speed > SPEED_LIMIT) {
                 this.speed /= 3;
             }
         };
-    };
+    }
 };
 
 // Draw the enemy on the screen, required method for game
@@ -61,10 +76,12 @@ Enemy.prototype.render = function() {
 // a handleInput() method.
 
 var Player = function(x, y) {
-    this.x = x;
-    this.y = y;
+    GameObjects.call(this, x, y);
     this.sprite = "images/char-boy.png";
 };
+
+Player.prototype = Object.create(GameObjects.prototype);
+Player.prototype.constructor = Player;
 
 Player.prototype.update = function() {
 
@@ -78,45 +95,44 @@ Player.prototype.render = function() {
 //handles player input by increment or decrement x and y
 Player.prototype.handleInput = function(key) {
     if (key === 'left') {
-        this.x -= 101;
+        this.x -= HORIZONTALSPACE;
         if (this.x <= 0) {
             this.x = 0;
-        };
+        }
     }
 //each square is about 101 pixels, move player to right by 101 pixels
     else if (key === 'right') {
-        this.x += 101;
+        this.x += HORIZONTALSPACE;
         if (this.x >= 400) {
             this.x = 400;
-        };
+        }
     }
 //return player to starting position if it reaches the river
 //each square is about 80 pixel (y-axis), move player 80 pixels up
     else if (key === 'up') {
-        this.y -= 80;
+        this.y -= VERTICALSPACE;
         if (this.y == -20) {
             this.x = 200;
             this.y = 380;
-        };
+        }
     }
 
     else if (key === 'down') {
-        this.y += 80;
+        this.y += VERTICALSPACE;
         if (this.y >= 380) {
             this.y = 380;
-        };
-    };
-
+        }
+    }
 };
 
 //collision function declared outside of scope to access player and enemy properties
 //if the enemy hit the player, return player to starting point
 //the bug's horizontal size is about 70pixels
 var checkCollisions = function(enemyObject) {
-    if (enemyObject.x + 70 > player.x && enemyObject.x - 70 < player.x && enemyObject.y == player.y) {
+    if (enemyObject.x + ENEMYSIZE > player.x && enemyObject.x - ENEMYSIZE < player.x && enemyObject.y == player.y) {
         player.x = 200;
         player.y = 380;
-    };
+    }
 };
 
 // Now instantiate your objects.
